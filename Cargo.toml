@@ -6,12 +6,16 @@ keywords = ["sha1"]
 description = "Minimal implementation of SHA1 for Rust."
 license = "BSD-3-Clause"
 repository = "https://github.com/mitsuhiko/rust-sha1"
+exclude = ["/sgx/*"]
 
 [features]
-std = []
+default = ["mesalock_sgx", "std"]
+std = ["mesalock_sgx"]
+mesalock_sgx = ["sgx_tstd"]
 
 [dependencies]
-serde = { version = "1.0", optional = true }
+serde = { version = "1.0", git = "https://github.com/mesalock-linux/serde-sgx.git", optional = true }
+sgx_tstd = { rev = "v1.0.9", git = "https://github.com/baidu/rust-sgx-sdk.git", optional = true }
 
 [dev-dependencies]
 openssl = "0.10"

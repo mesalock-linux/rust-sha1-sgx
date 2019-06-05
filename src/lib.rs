@@ -34,10 +34,14 @@
 #![no_std]
 #![deny(missing_docs)]
 
+#![cfg_attr(target_env = "sgx", feature(rustc_private))]
+
 #[cfg(feature="serde")]
 extern crate serde;
 
-#[cfg(feature="std")]
+#[cfg(all(feature="std", feature = "mesalock_sgx", not(target_env = "sgx")))]
+extern crate sgx_tstd as std;
+#[cfg(all(feature="std", feature = "mesalock_sgx", target_env = "sgx"))]
 extern crate std;
 
 use core::cmp;
@@ -308,7 +312,7 @@ fn sha1rnds4c(abcd: u32x4, msg: u32x4) -> u32x4 {
     let mut e = 0u32;
 
     macro_rules! bool3ary_202 {
-        ($a:expr, $b:expr, $c:expr) => (($c ^ ($a & ($b ^ $c))))
+        ($a:expr, $b:expr, $c:expr) => ($c ^ ($a & ($b ^ $c)))
     } // Choose, MD5F, SHA1C
 
     e = e.wrapping_add(a.rotate_left(5)).wrapping_add(bool3ary_202!(b, c, d)).wrapping_add(t);
@@ -333,7 +337,7 @@ fn sha1rnds4p(abcd: u32x4, msg: u32x4) -> u32x4 {
     let mut e = 0u32;
 
     macro_rules! bool3ary_150 {
-        ($a:expr, $b:expr, $c:expr) => (($a ^ $b ^ $c))
+        ($a:expr, $b:expr, $c:expr) => ($a ^ $b ^ $c)
     } // Parity, XOR, MD5H, SHA1P
 
     e = e.wrapping_add(a.rotate_left(5)).wrapping_add(bool3ary_150!(b, c, d)).wrapping_add(t);
